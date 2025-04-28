@@ -43,7 +43,7 @@ st.markdown(load_styles(), unsafe_allow_html=True)
 def render_header():
     st.markdown("""
     <div class="header" style="display: flex; justify-content: space-between; font-family:Roboto; align-items: center; background-color: #408a93; padding: 0px;">
-        <div style="font-size: 1.6rem; font-weight: bold; color: white; margin-left: 0px;">
+        <div style="font-size: 1.4rem; font-weight: bold; color: white; margin-left: 0px;">
              State of the Ocean: Mixed Layer Depth (MLD) Analysis
         </div>
         <div style="font-size: 1rem; font-weight: bold; font-family:Roboto; margin-right: 100px;margin-top: 10px">
