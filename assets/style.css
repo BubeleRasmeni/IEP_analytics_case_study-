@@ -1,0 +1,71 @@
+[data-testid="stMainBlockContainer"] {
+  background-color: #ffffff;
+  margin-top: -6rem;
+  width: 100%;
+  padding: 5rem 2rem 1rem 1rem;
+}
+
+/* General styles */
+.st-emotion-cache-1ibsh2c {
+  width: 100%;
+  padding: 0rem 4rem 5rem 1rem;
+  max-width: initial;
+  min-width: auto;
+}
+
+.st-emotion-cache-16tyu1 {
+  display: flex;
+  flex-direction: column;
+  -webkit-box-flex: 1;
+  flex-grow: 2;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+  gap: 0rem;
+  width: 105%;
+}
+
+.st-emotion-cace-ocqkz7 {
+  display: flex;
+  flex-wrap: wrap;
+  -webkit-box-flex: 1;
+  flex-grow: 1;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.st-emotion-cache-12fmjuu {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 0rem;
+  background: rgb(255, 255, 255);
+  outline: none;
+  z-index: 999990;
+  display: block;
+}
+
+
+/* Sidebar headers styles */
+
+.st-emotion-cache-o3z2o4.e19011e617 {
+  font-weight: bold !important;
+  font-size: 18px !important; /* Adjust the value as needed */
+  color: #333 !important; /* Adjust the color as needed */
+}
+
+.st-emotion-cache-1gb1rig.e19011e63 {
+  font-size: 15px !important; /* Adjust the value as needed */
+  color: #333 !important; /* Adjust the color as needed */
+  font-style: italic !important;
+}
+/* Footer styles */
+.footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: gray;
+  margin-top: 40px;
+  padding: 10px;
+}
