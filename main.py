@@ -21,7 +21,7 @@ pages = {
     ],
     "Advanced Ocean Analysis": [
         st.Page("ts_diagrams.py", title="🌊 Temperature–Salinity Diagram"),
-        st.Page("MLD_Analysis.py", title="📏 Mixed Layer Depth (m) Analysis"),
+        st.Page("MLD_analysis.py", title="📏 Mixed Layer Depth (m) Analysis"),
     ],
 }
 
