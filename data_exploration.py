@@ -6,7 +6,9 @@ import plotly.graph_objects as go
 import statsmodels.api as sm
 from functions import generate_correlation_heatmap, config_figure
 from utils import load_data
-
+import matplotlib.colors as mcolors
+import colorsys
+import hashlib
 # -------------------------------
 # Style Loading
 # -------------------------------
@@ -26,6 +28,88 @@ COLOR_SCHEMES = {
     "oxygen_ml_l": "green",
     "fluorescence_mg_m3": "purple"
 }
+
+def stable_hash(station_name):
+    """Generate a stable integer hash from a string using MD5."""
+    return int(hashlib.md5(station_name.encode()).hexdigest(), 16)
+# -------------------------------
+# Color Configuration
+# -------------------------------
+VARIABLE_PALETTES = {
+    "temperature_c": {
+        "base": "#FF0000",
+        "shades": [
+            '#C41E3A', '#CD5C5C', '#FF2E2E', '#750000',
+            '#FF2400', '#D9381E', '#DC143C', '#DA012D',
+            '#D10000', '#A30000', '#9B111E', '#960018',
+            '#722F37', '#800020', '#800000', '#750000'
+        ]
+    },
+    "salinity_psu": {
+        "base": "#0000FF",
+        "shades": [
+            '#120A8F', '#00BFFF', '#7B68EE', '#0000FF',
+            '#0024FF', '#1E38D9', '#3C14DC', '#2D01DA',
+            '#0000D1', '#0000A3', '#111E9B', '#001896',
+            '#2F3772', '#002080', '#000080', '#000075'
+        ]
+    },
+    "oxygen_ml_l": {
+        "base": "#00FF00",
+        "shades": [
+            '#8AFF8A', '#006400', '#01796F', '#3CB371',
+            '#01796F', '#14DC3C', '#01DA2D',
+            '#00D100', '#00A300', '#1E9B11', '#189600',
+            '#37722F', '#208000', '#008000', '#007500'
+        ]
+    },
+    "fluorescence_mg_m3": {
+        "base": "#800080",
+        "shades": [
+            '#FF8AFF', '#FF5CFF', '#FF2EFF', '#FF00FF',
+            '#FF24FF', '#D938D9', '#DC14DC', '#DA01DA',
+            '#D100D1', '#A300A3', '#9B119B', '#960096',
+            '#722F72', '#800080', '#800080', '#750075'
+        ]
+    }
+}
+
+def generate_station_color(variable, station_name):
+    """
+    Generates colors using predefined palette first, then dynamic variations
+    """
+    palette = VARIABLE_PALETTES[variable]
+    num_predefined = len(palette["shades"])
+    
+    # Get stable index from station name
+    hash_val = stable_hash(station_name)
+    idx = hash_val % (num_predefined + 5)  # Allow 5 extra generated colors
+    
+    if idx < num_predefined:
+        return palette["shades"][idx]
+    
+    # Generate new color variation for stations beyond predefined palette
+    base_rgb = mcolors.to_rgb(palette["base"])
+    h, l, s = colorsys.rgb_to_hls(*base_rgb)
+    
+    # Create unique variations using multiple hash properties
+    hash_ratio = (hash_val % 10000) / 10000
+    secondary_hash = stable_hash(station_name + "_secondary") % 10000 / 10000
+    
+    # Enhanced variation parameters
+    lightness_adjust = (hash_ratio - 0.5) * 0.8  # ±40% variation
+    hue_adjust = (secondary_hash - 0.5) * 0.3     # ±15% hue variation
+    saturation_adjust = 1.2 + (hash_ratio - 0.5) * 0.4  # 100-140% saturation
+    
+    new_h = (h + hue_adjust) % 1.0
+    new_l = max(0.05, min(0.95, l + lightness_adjust))
+    new_s = max(0.4, min(1.0, s * saturation_adjust))
+    
+    # Convert back to RGB
+    new_rgb = colorsys.hls_to_rgb(new_h, new_l, new_s)
+    return f"rgb({int(new_rgb[0]*255)}, {int(new_rgb[1]*255)}, {int(new_rgb[2]*255)})"
+
+
 
 DASH_PATTERNS = ["solid", "dash", "dot", "dashdot", "longdash", "longdashdot"]
 
@@ -132,7 +216,13 @@ def render_ctd_tab(data):
         for var_index, var in enumerate(selected_vars):
             xaxis = "x" if var_index == 0 else "x2"
             show_group_title = True
-
+            df_ctd["year"] = df_ctd["datetime"].dt.year
+            unique_combos = df_ctd[["grid", "season", "year"]].drop_duplicates()
+            color_palette = px.colors.qualitative.Set2 + px.colors.qualitative.Dark24
+            color_map = {
+                (row.grid, row.season, row.year): color_palette[i % len(color_palette)]
+                for i, row in enumerate(unique_combos.itertuples(index=False))
+            }
             for season in sel_seasons:
                 for station in df_ctd["grid"].unique():
                     for year in sel_years:
@@ -144,7 +234,8 @@ def render_ctd_tab(data):
 
                         if sub.empty:
                             continue
-
+                        combo = (station, season, year)
+                        trace_color = color_map.get(combo, COLOR_SCHEMES[var])  # fallback to var color
                         fig.add_trace(go.Scatter(
                             x=sub[var], y=sub["depth_m"],
                             mode="lines",
@@ -152,7 +243,7 @@ def render_ctd_tab(data):
                             legendgroup=var,
                             legendgrouptitle=dict(text=var) if show_group_title else None,
                             line=dict(
-                                color=COLOR_SCHEMES[var],
+                                color=generate_station_color(var, station),
                                 dash=season_styles.get(season, "solid")
                             ),
                             xaxis=xaxis
@@ -174,8 +265,8 @@ def render_ctd_tab(data):
             "xaxis": dict(
                 title=selected_vars[0],
                 side="bottom",
-                title_font=dict(color=COLOR_SCHEMES[selected_vars[0]]),
-                tickfont=dict(color=COLOR_SCHEMES[selected_vars[0]]),
+                title_font=dict(color=VARIABLE_PALETTES[selected_vars[0]]["base"]),
+                tickfont=dict(color=VARIABLE_PALETTES[selected_vars[0]]["base"]),
                 showgrid=False
             )
         }
@@ -185,8 +276,8 @@ def render_ctd_tab(data):
                 title=selected_vars[1],
                 side="top",
                 overlaying="x",
-                title_font=dict(color=COLOR_SCHEMES[selected_vars[1]]),
-                tickfont=dict(color=COLOR_SCHEMES[selected_vars[1]]),
+                title_font=dict(color=VARIABLE_PALETTES[selected_vars[0]]["base"]),
+                tickfont=dict(color=VARIABLE_PALETTES[selected_vars[0]]["base"]),
                 showgrid=False
             )
         fig.update_layout(**layout,)
