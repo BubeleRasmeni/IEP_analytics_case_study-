@@ -276,8 +276,8 @@ def render_ctd_tab(data):
                 title=selected_vars[1],
                 side="top",
                 overlaying="x",
-                title_font=dict(color=VARIABLE_PALETTES[selected_vars[0]]["base"]),
-                tickfont=dict(color=VARIABLE_PALETTES[selected_vars[0]]["base"]),
+                title_font=dict(color=VARIABLE_PALETTES[selected_vars[1]]["base"]),
+                tickfont=dict(color=VARIABLE_PALETTES[selected_vars[1]]["base"]),
                 showgrid=False
             )
         fig.update_layout(**layout,)
