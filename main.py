@@ -9,20 +9,20 @@ st.set_page_config(page_title=apptitle, page_icon="🌊", layout='wide')
 
 # Load data into session state if not already there
 if 'data' not in st.session_state:
-    st.session_state.data = load_data()
+    st.session_state.data = load_data(data_path='data/all_data_merged.csv')
 #st.dataframe(st.session_state.data, use_container_width=True)
 # Define the available pages
 pages = {
     "Information": [
         st.Page("about.py", title="📄 About IEP"),
     ],
-    "Data Exploration": [
+    "Physical Oceanography": [
         st.Page("data_exploration.py", title="📊 Essential Ocean Variables"),
-    ],
-    "Advanced Ocean Analysis": [
         st.Page("ts_diagrams.py", title="🌊 Temperature–Salinity Diagram"),
         st.Page("MLD_analysis.py", title="📏 Mixed Layer Depth (m) Analysis"),
     ],
+    "Chemical Oceanography": [
+        st.Page("carbonate_chemistry.py", title="🌊 Ocean Carbon Chemistry"),    ],    
 }
 
 # Create the navigation

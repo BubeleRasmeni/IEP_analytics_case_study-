@@ -27,8 +27,10 @@ def generate_correlation_heatmap(Correlation_station,Correlation_season, Correla
         "pressure_db",
         "temperature_c",
         "salinity_psu",
+        "ta_umol_kg",
+        "dic_umol_kg",
         "oxygen_ml_l",
-        "fluorescence_mg_m3"
+        "fluorescence_mg_m3",
         
     ]
 
