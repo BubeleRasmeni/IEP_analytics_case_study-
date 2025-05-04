@@ -74,21 +74,34 @@ VARIABLE_PALETTES = {
     }
 }
 
-def generate_station_color(variable, station_name):
+
+def get_year_range(years):
+    """Calculate dynamic year range for normalization"""
+    if not years:
+        return (2000, 2050)  # Default range if no years available
+    min_year = min(years)
+    max_year = max(years)
+    return (min_year, max_year)
+
+def generate_station_color(variable, station_name, year=None, year_range=None):
     """
-    Generates colors using predefined palette first, then dynamic variations
+    Generates colors using predefined palette first, then dynamic variations.
+    Incorporates year information if provided.
     """
     palette = VARIABLE_PALETTES[variable]
     num_predefined = len(palette["shades"])
     
-    # Get stable index from station name
-    hash_val = stable_hash(station_name)
+    # Get stable index from station name and optionally year
+    hash_input = station_name
+    if year is not None:
+        hash_input += str(year)
+    hash_val = stable_hash(hash_input)
     idx = hash_val % (num_predefined + 5)  # Allow 5 extra generated colors
     
     if idx < num_predefined:
         return palette["shades"][idx]
     
-    # Generate new color variation for stations beyond predefined palette
+    # Generate new color variation
     base_rgb = mcolors.to_rgb(palette["base"])
     h, l, s = colorsys.rgb_to_hls(*base_rgb)
     
@@ -96,10 +109,19 @@ def generate_station_color(variable, station_name):
     hash_ratio = (hash_val % 10000) / 10000
     secondary_hash = stable_hash(station_name + "_secondary") % 10000 / 10000
     
-    # Enhanced variation parameters
-    lightness_adjust = (hash_ratio - 0.5) * 0.8  # ±40% variation
-    hue_adjust = (secondary_hash - 0.5) * 0.3     # ±15% hue variation
-    saturation_adjust = 1.2 + (hash_ratio - 0.5) * 0.4  # 100-140% saturation
+    # Enhanced variation parameters - now optionally influenced by year
+    if year is not None and year_range is not None:
+        min_year, max_year = year_range
+        year_range_span = max(1, max_year - min_year)  # Avoid division by zero
+        year_factor = (year - min_year) / year_range_span
+        
+        lightness_adjust = (hash_ratio - 0.5 + year_factor * 0.2) * 0.8
+        hue_adjust = (secondary_hash - 0.5 + year_factor * 0.1) * 0.3
+    else:
+        lightness_adjust = (hash_ratio - 0.5) * 0.8
+        hue_adjust = (secondary_hash - 0.5) * 0.3
+    
+    saturation_adjust = 1.2 + (hash_ratio - 0.5) * 0.4
     
     new_h = (h + hue_adjust) % 1.0
     new_l = max(0.05, min(0.95, l + lightness_adjust))
@@ -169,7 +191,7 @@ def render_ctd_tab(data):
     
     # Get filter options
     options = get_unique_options(data)
-    
+    year_range = get_year_range(options["years"])
     with st.expander("Filter Data"):
         cols = st.columns(4)
         with cols[0]:
@@ -243,7 +265,7 @@ def render_ctd_tab(data):
                             legendgroup=var,
                             legendgrouptitle=dict(text=var) if show_group_title else None,
                             line=dict(
-                                color=generate_station_color(var, station),
+                                color=generate_station_color(var, station, year, year_range),
                                 dash=season_styles.get(season, "solid")
                             ),
                             xaxis=xaxis

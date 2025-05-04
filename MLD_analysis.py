@@ -443,7 +443,7 @@ def main():
                 if profiles:
                     st.plotly_chart(create_profile_plot(profiles, MLD_METHODS[method],annotate_mld), use_container_width=True, config=config_figure)
             if show_table:
-                st.dataframe(mld_df.sort_values(["Year", "Season"]), height=300, use_container_width=True)
+                st.dataframe(mld_df.sort_values(["Year", "Season"]), use_container_width=True)
         else:
             st.warning("No valid MLD calculations for selected filters")
 
