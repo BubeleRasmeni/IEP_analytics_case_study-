@@ -17,7 +17,7 @@ pages = {
         st.Page("about.py", title="📄 About IEP"),
     ],
     "Physical Oceanography": [
-        st.Page("data_exploration.py", title="📊 Essential Ocean Variables"),
+        st.Page("data_exploration.py", title="🌊 Essential Ocean Variables"),
         st.Page("ts_diagrams.py", title="🌊 Temperature–Salinity Diagram"),
         st.Page("MLD_analysis.py", title="📏 Mixed Layer Depth (m) Analysis"),
     ],
